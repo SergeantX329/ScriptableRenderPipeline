@@ -22,7 +22,7 @@ TEXTURECUBE(_AmbientProbeInputCubemap);
 #define SAMPLE_COUNT 256
 #define SH_COEFF_COUNT 27
 
-#ifdef SUPPORTS_WAVE_INTRINSICS
+#if defined(SUPPORTS_WAVE_INTRINSICS) && defined(PLATFORM_LANE_COUNT)
     // Allocate space to accumulate all waves result. We need space for each single wavefront (because we can't atomic add floats)
     groupshared float outputSHCoeffsLDS[SH_COEFF_COUNT * SAMPLE_COUNT / PLATFORM_LANE_COUNT];
 #else

@@ -65,8 +65,8 @@ StructuredBuffer<uint> g_vBigTileLightList : register( t4 );        // don't sup
 #endif
 
 
-#if PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
-#define NR_THREADS              PLATFORM_THREAD_GROUP_OPTIMAL_SIZE  // use platform optimal thread group size if possible
+#ifdef PLATFORM_LANE_COUNT                                          // We can infer the size of a wave. This is currently not possible on non-consoles, so we have to fallback to a sensible default in those cases.
+#define NR_THREADS              PLATFORM_LANE_COUNT  
 #else
 #define NR_THREADS              64                                  // default to 64 threads per group on other platforms..
 #endif
@@ -234,7 +234,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
 #endif
     }
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
     GroupMemoryBarrierWithGroupSync(); 
 #endif
 
@@ -287,7 +287,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
     InterlockedMax(ldsZMax, asuint(linMaDist) );
 
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync();
 #endif
     linMaDist = asfloat(ldsZMax);
@@ -328,7 +328,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
         }
     }
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync();
 #endif
 
@@ -352,7 +352,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
 #endif
 
     // sort lights (gives a more efficient execution in both deferred and tiled forward lighting).
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     SORTLIST(coarseList, iNrCoarseLights, MAX_NR_COARSE_ENTRIES, t, NR_THREADS);
 #endif
 
@@ -372,7 +372,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
         }
     }
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync();
 #endif
 
@@ -419,7 +419,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
         int m = i&3;
         if(i<24) lightPlanes[6*m+p] = FetchPlane(min(iNrCoarseLights-1,ll+m), p, eyeIndex);
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
         GroupMemoryBarrierWithGroupSync();
 #endif
 
@@ -434,7 +434,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
             }
         }
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
         GroupMemoryBarrierWithGroupSync();
 #endif
     }
@@ -499,7 +499,7 @@ int SphericalIntersectionTests(uint threadID, int iNrCoarseLights, float2 screen
             coarseList[l]=UINT_MAX;
     }
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync();
 #endif
 
@@ -515,7 +515,7 @@ int SphericalIntersectionTests(uint threadID, int iNrCoarseLights, float2 screen
         lightOffsSph = offs;
     }
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync();
 #endif
 
@@ -571,7 +571,7 @@ int CullByExactEdgeTests(uint threadID, int iNrCoarseLights, uint2 viTilLL, uint
     {
         if(threadID==0) ldsIsLightInvisible=0;
 
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
         GroupMemoryBarrierWithGroupSync();
 #endif
         const int lightCullIndex = GenerateLightCullDataIndex(coarseList[l], g_iNrVisibLights, eyeIndex);
@@ -625,7 +625,7 @@ int CullByExactEdgeTests(uint threadID, int iNrCoarseLights, uint2 viTilLL, uint
                 if(bFoundSepPlane) InterlockedOr(ldsIsLightInvisible, 1);
             }
         }
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
         GroupMemoryBarrierWithGroupSync();
 #endif
         if(threadID==0 && ldsIsLightInvisible==0)
@@ -633,7 +633,7 @@ int CullByExactEdgeTests(uint threadID, int iNrCoarseLights, uint2 viTilLL, uint
             coarseList[lightOffs2++] = coarseList[l];
         }
     }
-#if NR_THREADS != PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync();
 #endif
     return lightOffs2;
