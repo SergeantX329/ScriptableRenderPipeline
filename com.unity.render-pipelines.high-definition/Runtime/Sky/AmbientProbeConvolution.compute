@@ -81,7 +81,7 @@ void KERNEL_NAME(uint dispatchThreadId : SV_DispatchThreadID)
     }
 
     // First thread of each wave stores the result in LDS
-    uint laneCount = PLATFORM_LANE_COUNT;
+    uint laneCount = WaveGetLaneCount();
     if (dispatchThreadId % laneCount == 0)
     {
         for (int i = 0; i < SH_COEFF_COUNT; ++i)
