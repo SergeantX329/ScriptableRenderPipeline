@@ -80,12 +80,12 @@ Shader "Hidden/HDRP/DebugViewTiles"
                 }
 
                 uint tileIndex = g_TileList[variant * _NumTiles + quadIndex];
-                uint2 tileCoord = uint2(tileIndex & 0x7FFF, (tileIndex >> 15) & 0x7FFF); // see builddispatchindirect.compute
+                uint2 tileCoord = uint2((tileIndex >> TILE_INDEX_SHIFT_X) & TILE_INDEX_MASK, (tileIndex >> TILE_INDEX_SHIFT_Y) & TILE_INDEX_MASK); // see builddispatchindirect.compute
                 uint2 pixelCoord = (tileCoord + uint2((quadVertex+1) & 1, (quadVertex >> 1) & 1)) * tileSize;
 
 #if defined(UNITY_STEREO_INSTANCING_ENABLED)
                 // With instancing, all tiles from the indirect buffer are processed so we need to discard them if they don't match the current eye index
-                uint tile_StereoEyeIndex = tileIndex >> 30;
+                uint tile_StereoEyeIndex = tileIndex >> TILE_INDEX_SHIFT_EYE;
                 if (unity_StereoEyeIndex != tile_StereoEyeIndex)
                     variant = -1;
 #endif
