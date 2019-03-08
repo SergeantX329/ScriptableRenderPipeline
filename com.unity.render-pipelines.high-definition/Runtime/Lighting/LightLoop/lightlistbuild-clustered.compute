@@ -234,7 +234,7 @@ void LIGHTLISTGEN(uint threadID : SV_GroupIndex, uint3 u3GroupID : SV_GroupID)
 #endif
     }
 
-#if NR_THREADS > PLATFORM_THREAD_GROUP_OPTIMAL_SIZE
+#if NR_THREADS > PLATFORM_LANE_COUNT
     GroupMemoryBarrierWithGroupSync(); 
 #endif
 
