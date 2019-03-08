@@ -128,7 +128,7 @@ StructuredBuffer<uint> g_TileList;
 void SHADE_OPAQUE_ENTRY(uint2 groupThreadId : SV_GroupThreadID, uint groupId : SV_GroupID)
 {
     uint  tileIndex   = g_TileList[g_TileListOffset + groupId];
-    uint2 tileCoord   = uint2(tileIndex & 0x7FFF, (tileIndex >> 15) & 0x7FFF); // see builddispatchindirect.compute
+    uint2 tileCoord   = uint2((tileIndex >> TILE_INDEX_SHIFT_X) & TILE_INDEX_MASK, (tileIndex >> TILE_INDEX_SHIFT_Y) & TILE_INDEX_MASK); // see builddispatchindirect.compute
     uint2 pixelCoord  = tileCoord * GetTileSize() + groupThreadId;
 
     UNITY_STEREO_ASSIGN_COMPUTE_EYE_INDEX(tileIndex >> 30);

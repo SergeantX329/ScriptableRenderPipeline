@@ -51,8 +51,8 @@ void BUILDINDIRECT(uint3 dispatchThreadId : SV_DispatchThreadID)
         InterlockedAdd(g_DispatchIndirectBuffer[variant * 3 + 0], 1, offset);
 #endif
 
-        // [2 bits for eye index | 15 bits for tileX | 15 bits for tileY]
-        // XRTODO: extend to more than 4 eyes? add asserts on C# side, list and consolidate all usage of hardcoded values
-        g_TileList[variant * g_NumTiles + offset] = (unity_StereoEyeIndex << 30) | (tileY << 15) | tileX;
+        // See LightDefinitions class in LightLoop.cs
+        uint tileIndex = (unity_StereoEyeIndex << TILE_INDEX_SHIFT_EYE) | (tileY << TILE_INDEX_SHIFT_Y) | (tileX << TILE_INDEX_SHIFT_X);
+        g_TileList[variant * g_NumTiles + offset] = tileIndex;
     }
 }

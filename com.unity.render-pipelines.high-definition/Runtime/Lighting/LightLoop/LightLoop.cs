@@ -76,6 +76,12 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
         public static int s_TileSizeClustered = 32;
         public static int s_TileSizeBigTile = 64;
 
+        // Tile indexing constants for indirect dispatch deferred pass : [2 bits for eye index | 15 bits for tileX | 15 bits for tileY]
+        public static int s_TileIndexMask = 0x7FFF;
+        public static int s_TileIndexShiftX = 0;
+        public static int s_TileIndexShiftY = 15;
+        public static int s_TileIndexShiftEye = 30;
+
         // feature variants
         public static int s_NumFeatureVariants = 27;
 
