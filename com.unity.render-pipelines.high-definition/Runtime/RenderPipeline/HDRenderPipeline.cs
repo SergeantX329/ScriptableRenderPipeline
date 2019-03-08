@@ -1058,6 +1058,9 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
                     {
                         var visibleProbe = cullingResults.cullingResults.visibleReflectionProbes[i];
 
+                        if (visibleProbe == null || visibleProbe.Equals(null) || visibleProbe.reflectionProbe == null || visibleProbe.reflectionProbe.Equals(null))
+                            continue;
+
                         var additionalReflectionData =
                             visibleProbe.reflectionProbe.GetComponent<HDAdditionalReflectionData>()
                             ?? visibleProbe.reflectionProbe.gameObject.AddComponent<HDAdditionalReflectionData>();
