@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fixed instance identifier semantic string used by Shader Graph
+- Fixed volumetric rendering with stereo instancing
 
 ## [6.5.0-preview] - 2019-03-07
 
